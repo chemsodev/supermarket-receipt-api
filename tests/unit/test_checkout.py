@@ -2,12 +2,23 @@
 
 import pytest
 
-from supermarket_receipt_api.checkout import line_subtotal_cents, percentage_discount_cents, validate_quantity, three_for_two_discount_cents
+from supermarket_receipt_api.checkout import (
+    line_subtotal_cents,
+    percentage_discount_cents,
+    three_for_two_discount_cents,
+    validate_quantity,
+)
 
 
 @pytest.mark.parametrize(
     "unit_price_cents, quantity, unit, expected",
-    [(100, 2, "piece", 200), (199, 1000, "gram", 199), (199, 2000, "gram", 398), (199,500, "gram", 100), (199, 449,"gram", 89)]
+    [
+        (100, 2, "piece", 200),
+        (199, 1000, "gram", 199),
+        (199, 2000, "gram", 398),
+        (199, 500, "gram", 100),
+        (199, 449, "gram", 89),
+    ],
 )
 def test_line_subtotal_nominal(
     unit_price_cents: int, quantity: int, unit: str, expected: int
@@ -29,7 +40,6 @@ def test_line_subtotal_nominal(
         AssertionError: Si le montant calculé diffère de expected.
     """
     assert line_subtotal_cents(unit_price_cents, quantity, unit) == expected
-
 
 
 @pytest.mark.parametrize(
@@ -82,6 +92,7 @@ def test_validate_quantity():
         validate_quantity("1")
     with pytest.raises(TypeError):
         validate_quantity(True)
+
 
 def test_three_for_two_discount_nominal():
     """Vérifier le calcul de la réduction "3 pour 2".
