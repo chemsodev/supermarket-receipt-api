@@ -17,14 +17,15 @@ jobs:
     strategy:
       matrix:
 
-        
         include:
           - check: "lint"
             command: "uv run ruff check ."
           - check: "format"
             command: "uv run ruff format --check ."
+            needs: "lint"
           - check: "tests"
             command: "uv run pytest tests/unit tests/integration --cov=supermarket_receipt_api.checkout --cov-report=term-missing"
+            needs: "format"
     steps:
       - name: "Récupérer le code"
         uses: "actions/checkout@v7.0.1"
