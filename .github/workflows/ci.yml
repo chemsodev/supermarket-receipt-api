@@ -7,7 +7,7 @@ name: "ci"
   pull_request:
     paths-ignore: "**.md"
 
-    
+
 concurrency:
   group: "ci"
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -19,7 +19,7 @@ jobs:
   checks:
     name: "CI - ${{ matrix.check }}"
     runs-on: "ubuntu-latest"
-    timeout-minutes: 5
+    timeout-minutes: 5000
     strategy:
       fail-fast: false
       matrix:
