@@ -19,7 +19,7 @@ jobs:
   checks:
     name: "CI - ${{ matrix.check }}"
     runs-on: "ubuntu-latest"
-    timeout-minutes: 5000
+    timeout-minutes: 5
     strategy:
       fail-fast: false
       matrix:
