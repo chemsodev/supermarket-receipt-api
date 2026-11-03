@@ -1,4 +1,4 @@
-name: "CI"
+name: "ci"
 
 "on":
   push:
@@ -10,20 +10,20 @@ permissions:
   contents: "read"
 
 jobs:
-  ci:
+  checks:
     name: "CI - ${{ matrix.check }}"
     runs-on: "ubuntu-latest"
     timeout-minutes: 5
     strategy:
+      fail-fast: false
       matrix:
-
         include:
           - check: "lint"
             command: "uv run ruff check ."
           - check: "format"
             command: "uv run ruff format --check ."
           - check: "tests"
-            command: "uv run pytest tests/unit tests/integration --cov=supermarket_receipt_api.checkout --cov-report=term-missing"
+            command: "uv run pytest tests/unit tests/integration --cov=supermarket_receipt_api.checkout --cov-report=term-missing --cov-report=xml"
     steps:
       - name: "Récupérer le code"
         uses: "actions/checkout@v7.0.1"
@@ -38,3 +38,34 @@ jobs:
         run: uv sync --locked
       - name: "Exécuter la vérification"
         run: ${{ matrix.command }}
+      - name: "Téléverser le rapport de couverture"
+        if: (matrix.check == 'tests') && always()
+        uses: "actions/upload-artifact@v7.0.2"
+        with:
+          name: "coverage-report"
+          path: "coverage.xml"
+
+  build:
+    name: "Build"
+    needs: "checks"
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 5
+    steps:
+      - name: "Récupérer le code"
+        uses: "actions/checkout@v7.0.1"
+        with:
+          persist-credentials: false
+      - name: "Installer uv"
+        uses: "astral-sh/setup-uv@v10.2.0"
+        with:
+          enable-cache: false
+          python-version: "3.13"
+      - name: "Synchroniser les dépendances"
+        run: uv sync --locked
+      - name: "Construire le paquet"
+        run: uv build
+      - name: "Publier les distributions"
+        uses: "actions/upload-artifact@v7.0.2"
+        with:
+          name: "dist"
+          path: "dist/"
