@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   ci:
-    name: "CI Workflow"
+    name: "CI - ${{ matrix.check }}"
     runs-on: "ubuntu-latest"
     timeout-minutes: 5
     strategy:
