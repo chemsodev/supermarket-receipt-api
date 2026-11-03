@@ -166,4 +166,3 @@ def test_invalid_checkout_payloads_are_rejected(payload, detail_type):
 
     assert response.status_code == 422
     assert isinstance(response.json()["detail"], detail_type)
-
