@@ -10,22 +10,10 @@ permissions:
   contents: "read"
 
 jobs:
-  ci:
-    name: "CI - ${{ matrix.check }}"
+  lint:
+    name: "CI - lint"
     runs-on: "ubuntu-latest"
     timeout-minutes: 5
-    strategy:
-      matrix:
-
-        include:
-          - check: "lint"
-            command: "uv run ruff check ."
-          - check: "format"
-            command: "uv run ruff format --check ."
-            needs: "lint"
-          - check: "tests"
-            command: "uv run pytest tests/unit tests/integration --cov=supermarket_receipt_api.checkout --cov-report=term-missing"
-            needs: "format"
     steps:
       - name: "Récupérer le code"
         uses: "actions/checkout@v7.0.1"
@@ -39,4 +27,44 @@ jobs:
       - name: "Synchroniser les dépendances"
         run: uv sync --locked
       - name: "Exécuter la vérification"
-        run: ${{ matrix.command }}
+        run: uv run ruff check .
+
+  format:
+    name: "CI - format"
+    needs: lint
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 5
+    steps:
+      - name: "Récupérer le code"
+        uses: "actions/checkout@v7.0.1"
+        with:
+          persist-credentials: false
+      - name: "Installer uv"
+        uses: "astral-sh/setup-uv@v10.2.0"
+        with:
+          enable-cache: false
+          python-version: "3.13"
+      - name: "Synchroniser les dépendances"
+        run: uv sync --locked
+      - name: "Exécuter la vérification"
+        run: uv run ruff format --check .
+
+  tests:
+    name: "CI - tests"
+    needs: format
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 5
+    steps:
+      - name: "Récupérer le code"
+        uses: "actions/checkout@v7.0.1"
+        with:
+          persist-credentials: false
+      - name: "Installer uv"
+        uses: "astral-sh/setup-uv@v10.2.0"
+        with:
+          enable-cache: false
+          python-version: "3.13"
+      - name: "Synchroniser les dépendances"
+        run: uv sync --locked
+      - name: "Exécuter la vérification"
+        run: uv run pytest tests/unit tests/integration --cov=supermarket_receipt_api.checkout --cov-report=term-missing
