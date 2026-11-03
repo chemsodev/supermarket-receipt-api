@@ -1,0 +1,18 @@
+name: "action-preparer"
+description: "Prépare l'environnement Python du projet"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Récupérer le code"
+      uses: "actions/checkout@v7.0.1"
+      with:
+        persist-credentials: false
+    - name: "Installer uv"
+      uses: "astral-sh/setup-uv@v10.2.0"
+      with:
+        enable-cache: false
+        python-version: "3.13"
+    - name: "Synchroniser les dépendances"
+      shell: bash
+      run: uv sync --locked
